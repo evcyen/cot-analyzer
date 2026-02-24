@@ -1,0 +1,59 @@
+# Environment and secrets (API keys, DB URLs)
+.env
+.env.*
+!.env.example
+
+# Python (uv, pytest, mypy, ruff)
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Node / Next.js (frontend has its own .gitignore; these apply at root)
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Generated / local data (EvalLog JSON from scripts; remove if you want to track data)
+data/
+.hidden/
+
+# Logs
+*.log
+logs/
+
+# Supabase CLI (local)
+supabase/.branches
+supabase/.temp

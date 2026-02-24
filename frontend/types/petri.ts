@@ -1,8 +1,21 @@
+import type { ModelUsageEntry } from "./shared";
+
+export interface ParsedEvalLogStats {
+  started_at: string | null;
+  completed_at: string | null;
+  model_usage: Record<string, ModelUsageEntry> | null;
+}
+
 export interface ParsedTrace {
   model: string | null;
   scenario_summary: string | null;
   raw_input: string | null;
   messages: unknown[];
+  model_usage?: Record<string, ModelUsageEntry> | null;
+  total_time?: number | null;
+  working_time?: number | null;
+  started_at?: string | null;
+  completed_at?: string | null;
 }
 
 export interface ParsedScore {
@@ -36,6 +49,7 @@ export interface ParsedEvalLog {
   judgeModel: string | null;
   targetModel: string | null;
   samples: ParsedSample[];
+  stats?: ParsedEvalLogStats | null;
 }
 
 export interface UploadBatchResult {

@@ -1,0 +1,7 @@
+-- Traces: add per-sample run data (timing and token usage).
+ALTER TABLE traces
+ADD COLUMN IF NOT EXISTS model_usage JSONB,
+ADD COLUMN IF NOT EXISTS total_time DOUBLE PRECISION,
+ADD COLUMN IF NOT EXISTS working_time DOUBLE PRECISION,
+ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;

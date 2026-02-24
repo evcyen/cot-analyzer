@@ -6,6 +6,7 @@ import type {
   TraceMessage,
   ScoreWithDimension,
   CitationEntry,
+  ModelUsageEntry,
 } from "@/types/trace-detail";
 
 interface TraceRow {
@@ -14,6 +15,11 @@ interface TraceRow {
   scenario_summary: string | null;
   raw_input: string | null;
   messages: unknown;
+  model_usage: Record<string, unknown> | null;
+  total_time: number | null;
+  working_time: number | null;
+  started_at: string | null;
+  completed_at: string | null;
 }
 
 interface AnalysisRow {
@@ -54,7 +60,9 @@ export async function getTraceDetail(
 ): Promise<TraceDetail | null> {
   const { data: traceRow, error: traceErr } = await supabase
     .from("traces")
-    .select("id, model, scenario_summary, raw_input, messages")
+    .select(
+      "id, model, scenario_summary, raw_input, messages, model_usage, total_time, working_time, started_at, completed_at",
+    )
     .eq("id", traceId)
     .eq("batch_id", batchId)
     .maybeSingle();
@@ -77,6 +85,12 @@ export async function getTraceDetail(
         ? (m as Record<string, unknown>)
         : {}),
     })),
+    model_usage:
+      (t.model_usage as Record<string, ModelUsageEntry> | null) ?? undefined,
+    total_time: t.total_time ?? undefined,
+    working_time: t.working_time ?? undefined,
+    started_at: t.started_at ?? undefined,
+    completed_at: t.completed_at ?? undefined,
   };
 
   const { data: analysisRows, error: analysisErr } = await supabase

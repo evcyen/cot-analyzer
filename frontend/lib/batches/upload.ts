@@ -4,13 +4,14 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { parsePetriEvalLog } from "@/lib/parsers/petri";
+import { parsePetriEvalLog, mergeEvalLogStats } from "@/lib/parsers/petri";
 import { createBatch } from "@/services/batches";
 import { createTrace } from "@/services/traces";
 import { createAnalysis } from "@/services/analyses";
 import { createScoresForAnalysis } from "@/services/scores";
 import { createCitationsForAnalysis } from "@/services/citations";
 import type {
+  ParsedEvalLogStats,
   ParsedSample,
   UploadBatchParams,
   UploadBatchResult,
@@ -21,20 +22,20 @@ export type { UploadBatchParams, UploadBatchResult } from "@/types/petri";
 /** Parsed files ready to persist (before DB write). */
 export interface ParsedUpload {
   samples: ParsedSample[];
-  originalFilenames: string[];
+  stats: ParsedEvalLogStats | null;
 }
 
 /**
  * Parse uploaded files as Petri EvalLogs. Skips non-JSON files.
  * Throws on first file that is JSON but not a valid Petri EvalLog.
+ * Merges stats across files for batch-level storage.
  */
 export async function parsePetriFiles(files: File[]): Promise<ParsedUpload> {
   const samples: ParsedSample[] = [];
-  const originalFilenames: string[] = [];
+  const allStats: (ParsedEvalLogStats | null)[] = [];
 
   for (const file of files) {
     if (!(file instanceof File)) continue;
-    originalFilenames.push(file.name);
 
     let json: unknown;
     try {
@@ -46,13 +47,15 @@ export async function parsePetriFiles(files: File[]): Promise<ParsedUpload> {
     try {
       const parsed = parsePetriEvalLog(json);
       samples.push(...parsed.samples);
+      allStats.push(parsed.stats ?? null);
     } catch (e) {
       const message = e instanceof Error ? e.message : "parse error";
       throw new Error(`Invalid Petri EvalLog in ${file.name}: ${message}`);
     }
   }
 
-  return { samples, originalFilenames };
+  const stats = mergeEvalLogStats(allStats);
+  return { samples, stats };
 }
 
 /**
@@ -78,14 +81,17 @@ export async function uploadBatch(
 ): Promise<UploadBatchResult> {
   const { batchName, files } = params;
 
-  const { samples, originalFilenames } = await parsePetriFiles(files);
+  const { samples, stats } = await parsePetriFiles(files);
 
   if (samples.length === 0) {
     throw new Error("No valid samples in the provided files");
   }
 
   const getScenarioId = buildScenarioIdAssigner();
-  const batchId = await createBatch(supabase, batchName, originalFilenames);
+  const batchId = await createBatch(supabase, batchName, {
+    ingestSource: "petri",
+    stats,
+  });
   let traceCount = 0;
 
   for (const sample of samples) {

@@ -16,6 +16,11 @@ export async function createTrace(
       scenario_summary: sample.trace.scenario_summary,
       raw_input: sample.trace.raw_input,
       messages: sample.trace.messages,
+      model_usage: sample.trace.model_usage ?? null,
+      total_time: sample.trace.total_time ?? null,
+      working_time: sample.trace.working_time ?? null,
+      started_at: sample.trace.started_at ?? null,
+      completed_at: sample.trace.completed_at ?? null,
     })
     .select("id")
     .single();

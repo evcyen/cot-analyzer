@@ -1,3 +1,5 @@
+import type { ModelUsageEntry } from "./shared";
+
 export interface TraceMessage {
   id: string;
   role: string;
@@ -13,6 +15,11 @@ export interface TraceDetailTrace {
   scenario_summary: string | null;
   raw_input: string | null;
   messages: TraceMessage[];
+  model_usage?: Record<string, ModelUsageEntry> | null;
+  total_time?: number | null;
+  working_time?: number | null;
+  started_at?: string | null;
+  completed_at?: string | null;
 }
 
 export interface ScoreWithDimension {

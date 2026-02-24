@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-
-export interface BatchDetail {
-  id: string;
-  name: string;
-  created_at: string;
-}
+import type { BatchDetail } from "@/types/batches";
 
 /**
  * GET /api/batches/[id]
- * Returns batch metadata.
+ * Returns batch metadata including eval-level stats when present.
  */
 export async function GET(
   _request: Request,
@@ -19,7 +14,9 @@ export async function GET(
     const { id } = await params;
     const { data, error } = await supabase
       .from("batches")
-      .select("id, name, created_at")
+      .select(
+        "id, name, created_at, ingest_source, started_at, completed_at, model_usage",
+      )
       .eq("id", id)
       .maybeSingle();
 

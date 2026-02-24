@@ -40,9 +40,12 @@ export function DimensionsPopover() {
           <ChevronDownIcon className="ml-1 size-3.5 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="max-h-96 overflow-y-auto w-full">
+      <PopoverContent
+        align="start"
+        className="max-h-96 overflow-y-auto w-full gap-0"
+      >
         {/* Select all / Hide all */}
-        <div className="flex gap-2 mb-2 pb-2 border-b">
+        <div className="flex gap-2 pb-2 border-b">
           <button
             type="button"
             onClick={selectAll}
@@ -59,7 +62,6 @@ export function DimensionsPopover() {
           </button>
         </div>
 
-        {/* Show only dimensions with issues - own section */}
         <div className="py-2 border-b">
           <label className="flex items-center gap-2 text-xs cursor-pointer">
             <Checkbox

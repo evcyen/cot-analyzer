@@ -7,9 +7,11 @@
  */
 
 import type {
+  ModelUsageEntry,
   ParsedAnalysis,
   ParsedCitation,
   ParsedEvalLog,
+  ParsedEvalLogStats,
   ParsedSample,
   ParsedScore,
   ParsedTrace,
@@ -24,13 +26,109 @@ import {
 } from "./petri-validation";
 
 export type {
+  ModelUsageEntry,
   ParsedAnalysis,
   ParsedCitation,
   ParsedEvalLog,
+  ParsedEvalLogStats,
   ParsedSample,
   ParsedScore,
   ParsedTrace,
 } from "@/types/petri";
+
+function parseModelUsage(raw: unknown): Record<string, ModelUsageEntry> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const obj = raw as Record<string, unknown>;
+  const result: Record<string, ModelUsageEntry> = {};
+  for (const [modelName, val] of Object.entries(obj)) {
+    if (!val || typeof val !== "object") continue;
+    const v = val as Record<string, unknown>;
+    result[modelName] = {
+      input_tokens:
+        typeof v.input_tokens === "number" ? v.input_tokens : undefined,
+      output_tokens:
+        typeof v.output_tokens === "number" ? v.output_tokens : undefined,
+      total_tokens:
+        typeof v.total_tokens === "number" ? v.total_tokens : undefined,
+      input_tokens_cache_write:
+        typeof v.input_tokens_cache_write === "number"
+          ? v.input_tokens_cache_write
+          : undefined,
+      input_tokens_cache_read:
+        typeof v.input_tokens_cache_read === "number"
+          ? v.input_tokens_cache_read
+          : undefined,
+      reasoning_tokens:
+        typeof v.reasoning_tokens === "number" ? v.reasoning_tokens : undefined,
+      total_cost: typeof v.total_cost === "number" ? v.total_cost : undefined,
+    };
+  }
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+function extractEvalLogStats(
+  obj: Record<string, unknown>,
+): ParsedEvalLogStats | null {
+  const stats = obj.stats as Record<string, unknown> | undefined;
+  if (!stats || typeof stats !== "object") return null;
+  const started_at =
+    typeof stats.started_at === "string" ? stats.started_at : null;
+  const completed_at =
+    typeof stats.completed_at === "string" ? stats.completed_at : null;
+  const model_usage = parseModelUsage(stats.model_usage);
+  if (started_at === null && completed_at === null && !model_usage) return null;
+  return { started_at, completed_at, model_usage };
+}
+
+/** Merge stats from multiple EvalLogs (earliest started_at, latest completed_at, sum model_usage per model). */
+export function mergeEvalLogStats(
+  statsList: (ParsedEvalLogStats | null | undefined)[],
+): ParsedEvalLogStats | null {
+  const valid = statsList.filter(
+    (s): s is ParsedEvalLogStats => s != null && typeof s === "object",
+  );
+  if (valid.length === 0) return null;
+  const startedAtList: string[] = [];
+  const completedAtList: string[] = [];
+  const model_usage_merged: Record<string, ModelUsageEntry> = {};
+  for (const s of valid) {
+    if (s.started_at != null) startedAtList.push(s.started_at);
+    if (s.completed_at != null) completedAtList.push(s.completed_at);
+    if (s.model_usage && typeof s.model_usage === "object") {
+      for (const [model, usage] of Object.entries(s.model_usage)) {
+        const cur = model_usage_merged[model] ?? {};
+        model_usage_merged[model] = {
+          input_tokens: (cur.input_tokens ?? 0) + (usage.input_tokens ?? 0),
+          output_tokens: (cur.output_tokens ?? 0) + (usage.output_tokens ?? 0),
+          total_tokens: (cur.total_tokens ?? 0) + (usage.total_tokens ?? 0),
+          input_tokens_cache_write:
+            (cur.input_tokens_cache_write ?? 0) +
+            (usage.input_tokens_cache_write ?? 0),
+          input_tokens_cache_read:
+            (cur.input_tokens_cache_read ?? 0) +
+            (usage.input_tokens_cache_read ?? 0),
+          reasoning_tokens:
+            (cur.reasoning_tokens ?? 0) + (usage.reasoning_tokens ?? 0),
+          total_cost: (cur.total_cost ?? 0) + (usage.total_cost ?? 0),
+        };
+      }
+    }
+  }
+  const started_at =
+    startedAtList.length > 0
+      ? startedAtList.reduce((a, b) => (a < b ? a : b))
+      : null;
+  const completed_at =
+    completedAtList.length > 0
+      ? completedAtList.reduce((a, b) => (a > b ? a : b))
+      : null;
+  return {
+    started_at,
+    completed_at,
+    model_usage:
+      Object.keys(model_usage_merged).length > 0 ? model_usage_merged : null,
+  };
+}
 
 function extractAlignmentJudge(
   sample: Record<string, unknown>,
@@ -142,6 +240,15 @@ export function parsePetriEvalLog(json: unknown): ParsedEvalLog {
       scenario_summary: scenarioSummary,
       raw_input: rawInput,
       messages,
+      model_usage: parseModelUsage(sample.model_usage),
+      total_time:
+        typeof sample.total_time === "number" ? sample.total_time : null,
+      working_time:
+        typeof sample.working_time === "number" ? sample.working_time : null,
+      started_at:
+        typeof sample.started_at === "string" ? sample.started_at : null,
+      completed_at:
+        typeof sample.completed_at === "string" ? sample.completed_at : null,
     };
 
     const analysis = extractAlignmentJudge(sample);
@@ -152,10 +259,13 @@ export function parsePetriEvalLog(json: unknown): ParsedEvalLog {
     samples.push({ trace, analysis });
   }
 
+  const stats = extractEvalLogStats(obj);
+
   return {
     evalTask,
     judgeModel: typeof judgeModel === "string" ? judgeModel : null,
     targetModel: typeof targetModel === "string" ? targetModel : null,
     samples,
+    stats: stats ?? undefined,
   };
 }

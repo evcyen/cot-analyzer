@@ -1,19 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ChevronLeftIcon } from "lucide-react";
 import { getMessageParts } from "@/lib/trace-message-parts";
 import type { TraceMessage } from "@/types/trace-detail";
-import { AnalysisPanel, TranscriptPanel } from "./components";
+import { BatchBreadcrumb } from "../../components/BatchBreadcrumb";
 import {
   TraceDetailProvider,
   useTraceDetailContext,
 } from "@/contexts/TraceDetailContext";
+import { useTabFromUrl } from "@/hooks/use-tab-from-url";
+import { TranscriptTabContent, TraceStatsTab } from "./components";
+
+const TRACE_TABS = ["transcript", "stats"] as const;
 
 export default function TracePage() {
   const params = useParams();
@@ -30,7 +32,8 @@ export default function TracePage() {
 }
 
 function TracePageInner() {
-  const { batchId, trace, loading, error } = useTraceDetailContext();
+  const { batchId, batchName, trace, loading, error } = useTraceDetailContext();
+  const [activeTab, handleTabChange] = useTabFromUrl(TRACE_TABS, "transcript");
   const [citationNotFoundMessageId, setCitationNotFoundMessageId] = useState<
     string | null
   >(null);
@@ -95,6 +98,11 @@ function TracePageInner() {
     return (
       <div className="min-h-screen p-6">
         <div className="mx-auto max-w-6xl space-y-6">
+          {batchId && (
+            <div className="mb-6">
+              <BatchBreadcrumb batchId={batchId} batchName="..." />
+            </div>
+          )}
           <Skeleton className="h-8 w-24" />
           <Skeleton className="h-96 w-full" />
         </div>
@@ -105,14 +113,11 @@ function TracePageInner() {
   if (error || !trace) {
     return (
       <div className="min-h-screen p-6">
-        <div className="mx-auto max-w-2xl">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={batchId ? `/batches/${batchId}` : "/"}>
-              <ChevronLeftIcon className="size-4" />
-              Back to batch
-            </Link>
-          </Button>
-          <p className="mt-6 text-destructive text-sm">
+        <div className="mx-auto max-w-2xl space-y-4">
+          {batchId && (
+            <BatchBreadcrumb batchId={batchId} batchName={batchName ?? "..."} />
+          )}
+          <p className="text-destructive text-sm" role="alert">
             {error ?? "Trace not found"}
           </p>
         </div>
@@ -123,43 +128,34 @@ function TracePageInner() {
   return (
     <div className="min-h-screen p-6">
       <div className="mx-auto max-w-6xl space-y-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href={batchId ? `/batches/${batchId}` : "/"}>
-            <ChevronLeftIcon className="size-4" />
-            Back to batch
-          </Link>
-        </Button>
-
-        {citationNotFoundMessageId && (
-          <div
-            className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-2 text-sm text-destructive"
-            role="alert"
-          >
-            <p className="font-medium">Cited message not found</p>
-            <p className="mt-1 font-mono text-xs break-all">
-              {citationNotFoundMessageId}
-            </p>
-            <p className="mt-1 text-muted-foreground text-xs">
-              This may indicate a data mismatch. You can flag this for review.
-            </p>
-            <button
-              type="button"
-              onClick={() => setCitationNotFoundMessageId(null)}
-              className="mt-2 text-xs text-primary hover:underline"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-
-        <div
-          className="flex gap-6 h-[calc(100vh-8rem)] min-h-0"
-          style={{ maxHeight: "calc(100vh - 8rem)" }}
-        >
-          <TranscriptPanel />
-
-          <AnalysisPanel scrollToMessage={scrollToMessage} />
+        <div className="mb-6 min-h-6">
+          <BatchBreadcrumb
+            batchId={batchId ?? ""}
+            batchName={batchName ?? "..."}
+            traceModel={trace.model}
+          />
         </div>
+
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList aria-label="Trace view">
+            <TabsTrigger value="transcript">Transcript</TabsTrigger>
+            <TabsTrigger value="stats">Stats</TabsTrigger>
+          </TabsList>
+          <TabsContent value="transcript" className="mt-4 space-y-4">
+            <TranscriptTabContent
+              citationNotFoundMessageId={citationNotFoundMessageId}
+              onDismissCitation={() => setCitationNotFoundMessageId(null)}
+              scrollToMessage={scrollToMessage}
+            />
+          </TabsContent>
+          <TabsContent value="stats" className="mt-4">
+            <TraceStatsTab />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -22,9 +22,17 @@ export function AnalysisPanel({ scrollToMessage }: AnalysisPanelProps) {
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-6 min-w-0 wrap-break-word">
           <div className="space-y-2">
-            <h2 className="text-sm font-semibold text-foreground">Model</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              Target model
+            </h2>
             <p className="text-sm text-muted-foreground">
               {trace.model ?? "—"}
+            </p>
+            <h2 className="text-sm font-semibold text-foreground pt-2">
+              Judge model
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {analysis?.judge_model ?? "—"}
             </p>
             <h2 className="text-sm font-semibold text-foreground pt-2">
               Input

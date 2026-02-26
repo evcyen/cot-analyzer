@@ -67,15 +67,14 @@ function PaginationLink({
 function PaginationPrevious({
   className,
   text = "Previous",
-  size: _size,
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
       aria-label="Go to previous page"
-      className={cn("pl-1.5!", className)}
-      {...props}
       size="default"
+      className={cn("pl-2!", className)}
+      {...props}
     >
       <ChevronLeftIcon data-icon="inline-start" />
       <span className="hidden sm:block">
@@ -88,15 +87,14 @@ function PaginationPrevious({
 function PaginationNext({
   className,
   text = "Next",
-  size: _size,
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
       aria-label="Go to next page"
-      className={cn("pr-1.5!", className)}
-      {...props}
       size="default"
+      className={cn("pr-2!", className)}
+      {...props}
     >
       <span className="hidden sm:block">{text}</span>
       <ChevronRightIcon data-icon="inline-end" />
@@ -113,7 +111,7 @@ function PaginationEllipsis({
       aria-hidden
       data-slot="pagination-ellipsis"
       className={cn(
-        "size-8 [&_svg:not([class*='size-'])]:size-4 flex items-center justify-center",
+        "size-7 [&_svg:not([class*='size-'])]:size-3.5 flex items-center justify-center",
         className
       )}
       {...props}

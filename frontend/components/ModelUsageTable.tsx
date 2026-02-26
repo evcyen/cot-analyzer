@@ -8,10 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type { ModelUsageEntry } from "@/types/shared";
 
 interface ModelUsageTableProps {
   modelUsage: Record<string, ModelUsageEntry> | null | undefined;
+  className?: string;
 }
 
 function formatNumber(value: number | undefined): string {
@@ -19,7 +21,10 @@ function formatNumber(value: number | undefined): string {
   return value.toLocaleString();
 }
 
-export function ModelUsageTable({ modelUsage }: ModelUsageTableProps) {
+export function ModelUsageTable({
+  modelUsage,
+  className,
+}: ModelUsageTableProps) {
   const entries =
     modelUsage && Object.keys(modelUsage).length > 0
       ? Object.entries(modelUsage)
@@ -34,7 +39,7 @@ export function ModelUsageTable({ modelUsage }: ModelUsageTableProps) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className={cn("rounded-md border", className)}>
       <Table>
         <TableHeader>
           <TableRow>

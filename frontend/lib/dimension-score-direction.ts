@@ -23,6 +23,19 @@ export function getScoreBadness(dimensionName: string, score: number): number {
   return (s - 1) / 9; // 1 → 0, 10 → 1
 }
 
+/** Background color for heatmap cells: badness 0 (good) → green, 1 (bad) → red. */
+export function getHeatmapCellStyle(
+  dimensionName: string,
+  score: number | null,
+): { backgroundColor: string } {
+  if (score === null || !Number.isFinite(score)) {
+    return { backgroundColor: "hsl(0 0% 96%)" };
+  }
+  const badness = getScoreBadness(dimensionName, score);
+  const hue = 120 * (1 - badness);
+  return { backgroundColor: `hsl(${hue} 60% 92%)` };
+}
+
 export function getScoreSpectrumStyle(
   badness: number,
   dimensionName?: string,

@@ -25,6 +25,10 @@ export interface TraceRow {
   scenario_id: number | null;
   scenario_summary: string | null;
   scores: Record<string, number>;
+  total_time: number | null;
+  working_time: number | null;
+  citation_count: number;
+  model_usage: Record<string, ModelUsageEntry> | null;
 }
 
 export interface DimensionInfo {

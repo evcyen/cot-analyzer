@@ -36,7 +36,7 @@ export function MeanScoreBarChart({
 }: MeanScoreBarChartProps) {
   return (
     <Card className={cn("py-0", className)}>
-      <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
+      <CardHeader className="flex flex-col items-stretch border-b p-0! sm:flex-row">
         <div className="flex flex-1 flex-col justify-center px-6 pt-4 pb-3">
           <CardTitle>Mean Scores by Dimension</CardTitle>
           <CardDescription>

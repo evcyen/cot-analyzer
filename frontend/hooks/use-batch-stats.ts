@@ -3,11 +3,23 @@
 import { useMemo } from "react";
 import { isPoorScore } from "@/lib/dimension-score-direction";
 import type { DimensionInfo, TraceRow } from "@/types/batches";
+import type { ModelUsageEntry } from "@/types/shared";
 import type {
   BatchOverviewStats,
   DimensionScoreStats,
   HeatmapRow,
+  PoorScoreStats,
+  TokenByModelData,
+  TokensPerTraceData,
+  TimeVsScoreData,
+  DurationBin,
+  CitationStats,
+  CitationBin,
 } from "@/types/batch-stats";
+
+// =============================================================================
+// OVERVIEW HOOKS
+// =============================================================================
 
 export function useBatchOverviewStats(traces: TraceRow[]): BatchOverviewStats {
   return useMemo(() => {
@@ -30,6 +42,10 @@ export function useBatchOverviewStats(traces: TraceRow[]): BatchOverviewStats {
     };
   }, [traces]);
 }
+
+// =============================================================================
+// DIMENSION & SCORE HOOKS
+// =============================================================================
 
 export function useDimensionScoreStats(
   traces: TraceRow[],
@@ -72,6 +88,22 @@ export function useDimensionScoreStats(
   }, [traces, dimensions]);
 }
 
+export function usePoorScoreStats(
+  dimensionStats: DimensionScoreStats[],
+): PoorScoreStats {
+  return useMemo(() => {
+    const totalScoreCount = dimensionStats.reduce((sum, d) => sum + d.n, 0);
+    const poorScoreCount = dimensionStats.reduce(
+      (sum, d) => sum + d.poorCount,
+      0,
+    );
+    const poorScorePct =
+      totalScoreCount > 0 ? (poorScoreCount / totalScoreCount) * 100 : 0;
+
+    return { poorScoreCount, poorScorePct, totalScoreCount };
+  }, [dimensionStats]);
+}
+
 export function useHeatmapData(
   traces: TraceRow[],
   dimensions: DimensionInfo[],
@@ -94,11 +126,9 @@ export function useHeatmapData(
   }, [traces, dimensions]);
 }
 
-export interface DurationBin {
-  range: string;
-  count: number;
-  minSeconds: number;
-}
+// =============================================================================
+// DURATION HOOKS
+// =============================================================================
 
 export function useDurationHistogram(
   traces: TraceRow[],
@@ -134,13 +164,68 @@ export function useDurationHistogram(
   }, [traces, binSizeSeconds]);
 }
 
-export interface CitationStats {
-  mean: number;
-  median: number;
-  max: number;
-  tracesWithCitations: number;
-  totalTraces: number;
+export function useTimeVsScoreData(traces: TraceRow[]): TimeVsScoreData[] {
+  return useMemo(() => {
+    return traces
+      .map((trace, idx) => {
+        const scores = Object.values(trace.scores).filter((s) =>
+          Number.isFinite(s),
+        );
+        if (scores.length === 0) return null;
+        const meanScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+        const duration = trace.working_time ?? trace.total_time;
+        if (!duration || duration <= 0) return null;
+        return {
+          traceNum: idx + 1,
+          duration,
+          meanScore: Math.round(meanScore * 100) / 100,
+        };
+      })
+      .filter((d): d is NonNullable<typeof d> => d !== null);
+  }, [traces]);
 }
+
+// =============================================================================
+// TOKEN HOOKS
+// =============================================================================
+
+export function useTokenByModelData(
+  batch: { model_usage?: Record<string, ModelUsageEntry> | null } | null,
+): TokenByModelData[] {
+  return useMemo(() => {
+    if (!batch?.model_usage) return [];
+    return Object.entries(batch.model_usage).map(([model, usage]) => ({
+      model: model.split("/").pop() ?? model,
+      input: usage.input_tokens ?? 0,
+      output: usage.output_tokens ?? 0,
+      reasoning: usage.reasoning_tokens ?? 0,
+    }));
+  }, [batch]);
+}
+
+export function useTokensPerTraceData(
+  traces: TraceRow[],
+): TokensPerTraceData[] {
+  return useMemo(() => {
+    return traces
+      .map((trace, idx) => {
+        if (!trace.model_usage) return null;
+        const usage = Object.values(trace.model_usage)[0];
+        if (!usage) return null;
+        return {
+          traceNum: idx + 1,
+          input: usage.input_tokens ?? 0,
+          output: usage.output_tokens ?? 0,
+          total: (usage.input_tokens ?? 0) + (usage.output_tokens ?? 0),
+        };
+      })
+      .filter((d): d is NonNullable<typeof d> => d !== null);
+  }, [traces]);
+}
+
+// =============================================================================
+// CITATION HOOKS
+// =============================================================================
 
 export function useCitationStats(traces: TraceRow[]): CitationStats {
   return useMemo(() => {
@@ -173,15 +258,6 @@ export function useCitationStats(traces: TraceRow[]): CitationStats {
   }, [traces]);
 }
 
-export interface CitationBin {
-  range: string;
-  count: number;
-  minCitations: number;
-}
-
-/**
- * Compute histogram bins for citation count distribution.
- */
 export function useCitationHistogram(traces: TraceRow[]): CitationBin[] {
   return useMemo(() => {
     const counts = traces.map((t) => t.citation_count);

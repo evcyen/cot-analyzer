@@ -57,3 +57,7 @@ logs/
 # Supabase CLI (local)
 supabase/.branches
 supabase/.temp
+
+# Docs
+docs/
+scripts/

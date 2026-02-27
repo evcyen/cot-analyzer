@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
-import type { CitationBin } from "@/hooks/use-batch-stats";
+import type { CitationBin } from "@/types/batch-stats";
 
 const CHART_CONFIG = {
   count: {

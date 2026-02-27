@@ -6,8 +6,8 @@ import type {
   TraceMessage,
   ScoreWithDimension,
   CitationEntry,
-  ModelUsageEntry,
 } from "@/types/trace-detail";
+import type { ModelUsageEntry } from "@/types/shared";
 
 interface TraceRow {
   id: string;

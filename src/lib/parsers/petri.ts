@@ -6,8 +6,8 @@
  * and analysis extraction (below).
  */
 
+import type { ModelUsageEntry } from "@/types/shared";
 import type {
-  ModelUsageEntry,
   ParsedAnalysis,
   ParsedCitation,
   ParsedEvalLog,
@@ -26,7 +26,6 @@ import {
 } from "./petri-validation";
 
 export type {
-  ModelUsageEntry,
   ParsedAnalysis,
   ParsedCitation,
   ParsedEvalLog,

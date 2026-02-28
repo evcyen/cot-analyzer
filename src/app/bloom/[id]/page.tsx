@@ -48,7 +48,11 @@ export default function BloomBatchPage() {
       <div className="min-h-screen p-6">
         <div className="mx-auto w-full">
           <div className="mb-6 min-h-6">
-            <BatchBreadcrumb batchId={batchId} batchName="..." />
+            <BatchBreadcrumb
+              batchId={batchId}
+              batchName="..."
+              sourceType="bloom"
+            />
           </div>
           <div className="flex items-center justify-center py-12">
             <Spinner className="size-8" />
@@ -63,7 +67,11 @@ export default function BloomBatchPage() {
       <div className="min-h-screen p-6">
         <div className="mx-auto w-full">
           <div className="mb-6 min-h-6">
-            <BatchBreadcrumb batchId={batchId} batchName="..." />
+            <BatchBreadcrumb
+              batchId={batchId}
+              batchName="..."
+              sourceType="bloom"
+            />
           </div>
           <Card>
             <CardContent className="pt-6">
@@ -81,7 +89,11 @@ export default function BloomBatchPage() {
     <div className="h-screen flex flex-col p-6">
       <div className="mx-auto w-full flex-1 flex flex-col min-h-0">
         <div className="mb-6 min-h-6 shrink-0">
-          <BatchBreadcrumb batchId={batchId} batchName={data.batch.name} />
+          <BatchBreadcrumb
+            batchId={batchId}
+            batchName={data.batch.name}
+            sourceType="bloom"
+          />
         </div>
 
         <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0">

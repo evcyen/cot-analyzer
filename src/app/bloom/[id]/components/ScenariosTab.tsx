@@ -11,10 +11,6 @@ interface ScenariosTabProps {
   data: BloomBatchDetail;
 }
 
-/**
- * Extract the scenario title from the description markdown
- * E.g., "**Scenario 1: Research Grant Proposal Review**" -> "Scenario 1: Research Grant Proposal Review"
- */
 function extractScenarioTitle(description: string): string {
   // Remove the <dimension> tag if present
   const withoutDimension = description.replace(
@@ -33,10 +29,6 @@ function extractScenarioTitle(description: string): string {
   return firstLine.replace(/[*#]/g, "").trim();
 }
 
-/**
- * Format variation type for display
- * E.g., "emotional_pressure" -> "Emotional Pressure"
- */
 function formatVariationType(variationType: string | null): string | null {
   if (!variationType) return null;
   return variationType

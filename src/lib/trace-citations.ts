@@ -117,7 +117,20 @@ export function segmentizeWithCitations(
 }
 
 /** Custom XML-style tags that React would treat as unknown elements; render as divs. */
-const CUSTOM_TAGS = ["thinking", "seed_instructions"];
+const CUSTOM_TAGS = [
+  "thinking",
+  "seed_instructions",
+  "end",
+  "dimension",
+  "diversity_score",
+  "justification",
+  "name",
+  "parameter",
+  "parameters",
+  "type",
+  "description",
+  "tool_signature",
+];
 
 /**
  * Replace custom XML-style tags (e.g. &lt;thinking&gt;) with &lt;div data-tag="..."&gt;

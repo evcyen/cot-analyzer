@@ -5,24 +5,30 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getCitationRangesWithCitations } from "@/lib/trace-citations";
 import { getMessageParts } from "@/lib/trace-message-parts";
 import type { CitationEntry } from "@/types/trace-detail";
-import { useTraceDetailContext } from "@/contexts/TraceDetailContext";
-import { CitationHighlight } from "./CitationHighlight";
-import { TranscriptPart, type TranscriptPartData } from "./TranscriptPart";
+import { useBloomTraceDetailContext } from "@/contexts/BloomTraceDetailContext";
+import { CitationHighlight } from "@/app/petri/[id]/traces/[traceId]/components/CitationHighlight";
+import {
+  TranscriptPart,
+  type TranscriptPartData,
+} from "@/app/petri/[id]/traces/[traceId]/components/TranscriptPart";
 import {
   TranscriptToolbar,
   type TranscriptToolbarHandlers,
   type TranscriptToolbarState,
-} from "./TranscriptToolbar";
+} from "@/app/petri/[id]/traces/[traceId]/components/TranscriptToolbar";
 
-export function TranscriptPanel() {
+/**
+ * Bloom-specific version of TranscriptPanel that uses BloomTraceDetailContext
+ * This is a thin wrapper - all the logic is the same as Petri's TranscriptPanel
+ */
+export function BloomTranscriptPanel() {
   const { trace, citations, citedMessageIds, citationsByMessageId } =
-    useTraceDetailContext();
+    useBloomTraceDetailContext();
   const [hiddenRoles, setHiddenRoles] = useState<Set<string>>(new Set());
   const [showCitationsOnly, setShowCitationsOnly] = useState(false);
   const [markdownEnabled, setMarkdownEnabled] = useState(false);
   const [toolbarVisible, setToolbarVisible] = useState(true);
   const [allMinimized, setAllMinimized] = useState(false);
-  // Per-part overrides on top of allMinimized. Cleared when allMinimized toggles.
   const [minimizedOverrides, setMinimizedOverrides] = useState<
     Map<string, boolean>
   >(new Map());
@@ -36,7 +42,7 @@ export function TranscriptPanel() {
         msg.normalized_id,
         ...(msg.normalized_ids ?? []),
       ].filter(Boolean) as string[];
-      const isCited = allIds.some((id) => citedMessageIds.has(id));
+      const isCited = allIds.some((id) => citationsByMessageId.has(id));
       const citationsForThisMessage = allIds.flatMap(
         (id) => citationsByMessageId.get(id) ?? [],
       );
@@ -61,7 +67,7 @@ export function TranscriptPanel() {
         };
       });
     });
-  }, [trace?.messages, citedMessageIds, citationsByMessageId]);
+  }, [trace?.messages, citationsByMessageId]);
 
   const roleLabels = useMemo(() => {
     const seen = new Set<string>();

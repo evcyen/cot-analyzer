@@ -14,12 +14,14 @@ interface BatchBreadcrumbProps {
   batchId: string;
   batchName: string;
   traceModel?: string | null;
+  sourceType?: "petri" | "bloom";
 }
 
 export function BatchBreadcrumb({
   batchId,
   batchName,
   traceModel,
+  sourceType = "petri",
 }: BatchBreadcrumbProps) {
   const showTrace = traceModel != null && traceModel !== "";
 
@@ -35,7 +37,7 @@ export function BatchBreadcrumb({
         <BreadcrumbItem>
           {showTrace ? (
             <BreadcrumbLink asChild>
-              <Link href={`/petri/${batchId}`}>{batchName}</Link>
+              <Link href={`/${sourceType}/${batchId}`}>{batchName}</Link>
             </BreadcrumbLink>
           ) : (
             <BreadcrumbPage>{batchName}</BreadcrumbPage>

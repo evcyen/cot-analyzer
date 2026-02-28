@@ -70,7 +70,7 @@ export async function GET(
     const { data: tracesData, error: tracesError } = await supabase
       .from("bloom_transcripts")
       .select(
-        "id, transcript_id, summary, behavior_presence, unrealism, evaluation_awareness, evaluation_invalidity, messages, variation_number, repetition_number",
+        "id, transcript_id, summary, scores, messages, variation_number, repetition_number, updated_at, version, target_tools, target_system_prompt, judge_justification",
       )
       .eq("batch_id", id)
       .order("variation_number", { ascending: true })

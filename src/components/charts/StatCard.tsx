@@ -28,9 +28,21 @@ interface ScoreStatCardProps {
   title: string;
   score: number | null | undefined;
   className?: string;
+  getColorStyle?: (score: number) => { color?: string; fontWeight?: string };
 }
 
-export function ScoreStatCard({ title, score, className }: ScoreStatCardProps) {
+export function ScoreStatCard({
+  title,
+  score,
+  className,
+  getColorStyle,
+}: ScoreStatCardProps) {
+  const scoreValue = score == null ? null : Math.round(score);
+  const colorStyle =
+    scoreValue != null && getColorStyle
+      ? getColorStyle(scoreValue)
+      : { fontWeight: "600" };
+
   return (
     <Card className={cn(className, "w-full")}>
       <CardHeader className="pb-1">
@@ -40,8 +52,8 @@ export function ScoreStatCard({ title, score, className }: ScoreStatCardProps) {
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-semibold tabular-nums">
-            {score == null ? "—" : Math.round(score)}
+          <span className="text-2xl tabular-nums" style={colorStyle}>
+            {scoreValue ?? "—"}
           </span>
           <span className="text-sm text-muted-foreground"> / 10</span>
         </div>

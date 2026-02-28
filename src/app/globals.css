@@ -125,3 +125,52 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .wrap-break-word {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
+@layer components {
+  .prose {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .prose *,
+  .prose > * {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .prose p,
+  .prose div,
+  .prose span,
+  .prose ol,
+  .prose ul,
+  .prose li {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .prose pre,
+  .prose code {
+    max-width: 100% !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .prose table {
+    display: block !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+}

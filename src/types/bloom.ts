@@ -115,12 +115,16 @@ export interface ParsedBloomBatch {
     metajudge_response: string;
     metajudge_justification: string;
     diversity_score: number | null;
+    variation_dimensions: string[];
+    metajudge_model: string;
   };
   understanding: {
     understanding_text: string;
     understanding_reasoning: string;
     scientific_motivation: string;
     model: string;
+    temperature: number;
+    evaluator_reasoning_effort: string;
   };
   scenarios: Array<{
     scenario_number: number;
@@ -137,7 +141,29 @@ export interface ParsedBloomBatch {
     messages: unknown[];
     scores: Record<string, number>;
     summary: string;
+    updated_at: string | null;
+    version: string | null;
+    target_tools: unknown[] | null;
+    target_system_prompt: string | null;
+    judge_justification: string | null;
+    highlights: ParsedHighlight[];
   }>;
+}
+
+export interface ParsedHighlight {
+  highlight_index: number;
+  quoted_text: string;
+  reasoning: string;
+  parts: ParsedCitationPart[];
+}
+
+export interface ParsedCitationPart {
+  part_index: number;
+  message_id: string | null;
+  message_index: number | null;
+  tool_call_id: string | null;
+  tool_arg: string | null;
+  resolution_method: "direct" | "resolved_from_quote" | "unknown";
 }
 
 export interface BloomDirectoryFiles {
@@ -206,12 +232,58 @@ export interface BloomBatchDetail {
     id: string;
     transcript_id: string | null;
     summary: string | null;
-    behavior_presence: number | null;
-    unrealism: number | null;
-    evaluation_awareness: number | null;
-    evaluation_invalidity: number | null;
+    scores: Record<string, number>;
     messages: unknown;
     variation_number: number | null;
     repetition_number: number | null;
+    updated_at: string | null;
+    version: string | null;
+    target_tools: unknown[] | null;
+    target_system_prompt: string | null;
+    judge_justification: string | null;
   }>;
+}
+
+export interface BloomHighlight {
+  id: string;
+  transcript_id: string;
+  highlight_index: number;
+  quoted_text: string;
+  reasoning: string;
+  created_at: string;
+}
+
+export interface BloomCitationPart {
+  id: string;
+  highlight_id: string;
+  part_index: number;
+  message_id: string | null;
+  message_index: number | null;
+  tool_call_id: string | null;
+  tool_arg: string | null;
+  resolution_method: "direct" | "resolved_from_quote" | "unknown";
+  created_at: string;
+}
+
+export interface BloomTranscriptDetail {
+  id: string;
+  transcript_id: string;
+  batch_id: string;
+  variation_number: number;
+  repetition_number: number;
+  summary: string | null;
+  scores: Record<string, number>;
+  messages: unknown[];
+  judge_justification: string | null;
+  target_system_prompt: string | null;
+  created_at: string;
+
+  batch: {
+    id: string;
+    name: string;
+    behavior_name: string;
+  };
+  highlights: (BloomHighlight & {
+    parts: BloomCitationPart[];
+  })[];
 }

@@ -28,6 +28,8 @@ export async function createBloomBatch(
       metajudge_response: parsed.batch.metajudge_response,
       metajudge_justification: parsed.batch.metajudge_justification,
       diversity_score: parsed.batch.diversity_score,
+      variation_dimensions: parsed.batch.variation_dimensions,
+      metajudge_model: parsed.batch.metajudge_model,
     })
     .select("id")
     .single();
@@ -45,6 +47,9 @@ export async function createBloomBatch(
       understanding_reasoning: parsed.understanding.understanding_reasoning,
       scientific_motivation: parsed.understanding.scientific_motivation,
       model: parsed.understanding.model,
+      temperature: parsed.understanding.temperature,
+      evaluator_reasoning_effort:
+        parsed.understanding.evaluator_reasoning_effort,
     });
 
   if (understandingError) throw understandingError;
@@ -70,7 +75,7 @@ export async function createBloomBatch(
 
   let traceCount = 0;
   for (const trace of parsed.traces) {
-    const { error: traceError } = await supabase
+    const { data: transcriptData, error: traceError } = await supabase
       .from("bloom_transcripts")
       .insert({
         batch_id: batchId,
@@ -81,14 +86,64 @@ export async function createBloomBatch(
         messages: trace.messages,
         transcript_id: trace.transcript_id,
         summary: trace.summary,
-        behavior_presence: trace.scores.behavior_presence ?? null,
-        unrealism: trace.scores.unrealism ?? null,
-        evaluation_awareness: trace.scores.evaluation_awareness ?? null,
-        evaluation_invalidity: trace.scores.evaluation_invalidity ?? null,
-      });
+        scores: trace.scores,
+        updated_at: trace.updated_at,
+        version: trace.version,
+        target_tools: trace.target_tools,
+        target_system_prompt: trace.target_system_prompt,
+        judge_justification: trace.judge_justification,
+      })
+      .select("id")
+      .single();
 
     if (traceError) throw traceError;
+    if (!transcriptData?.id) throw new Error("Failed to create transcript");
+
     traceCount++;
+
+    // Insert highlights and citation parts for this transcript
+    if (trace.highlights && trace.highlights.length > 0) {
+      for (const highlight of trace.highlights) {
+        const { data: highlightData, error: highlightError } = await supabase
+          .from("bloom_highlights")
+          .insert({
+            transcript_id: transcriptData.id,
+            highlight_index: highlight.highlight_index,
+            quoted_text: highlight.quoted_text,
+            reasoning: highlight.reasoning,
+          })
+          .select("id")
+          .single();
+
+        if (highlightError) {
+          console.error("Failed to insert highlight:", highlightError);
+          continue;
+        }
+
+        if (!highlightData?.id) continue;
+
+        // Insert citation parts for this highlight
+        if (highlight.parts && highlight.parts.length > 0) {
+          const partsData = highlight.parts.map((part) => ({
+            highlight_id: highlightData.id,
+            part_index: part.part_index,
+            message_id: part.message_id,
+            message_index: part.message_index,
+            tool_call_id: part.tool_call_id,
+            tool_arg: part.tool_arg,
+            resolution_method: part.resolution_method,
+          }));
+
+          const { error: partsError } = await supabase
+            .from("bloom_citation_parts")
+            .insert(partsData);
+
+          if (partsError) {
+            console.error("Failed to insert citation parts:", partsError);
+          }
+        }
+      }
+    }
   }
 
   return {

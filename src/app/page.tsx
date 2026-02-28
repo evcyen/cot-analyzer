@@ -57,7 +57,7 @@ export default function Page() {
           <Card>
             <CardContent className="pt-6">
               <p className="text-muted-foreground text-sm">
-                No batches yet. Upload Petri eval files to create one.
+                No batches yet. Upload Petri or Bloom files to create one.
               </p>
               <Button
                 variant="outline"
@@ -75,10 +75,32 @@ export default function Page() {
             {batches.map((batch) => (
               <li key={batch.id}>
                 <Link href={`/batches/${batch.id}`}>
-                  <Card className="transition-colors hover:bg-muted/50">
+                  <Card
+                    className={`transition-colors hover:bg-muted/50 ${
+                      batch.source_type === "bloom"
+                        ? "border-l-4 border-l-purple-500"
+                        : "border-l-4 border-l-blue-500"
+                    }`}
+                  >
                     <CardHeader>
                       <div className="space-y-1.5">
-                        <CardTitle>{batch.name}</CardTitle>
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle>{batch.name}</CardTitle>
+                          <Badge
+                            variant={
+                              batch.source_type === "bloom"
+                                ? "secondary"
+                                : "default"
+                            }
+                            className={
+                              batch.source_type === "bloom"
+                                ? "bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100"
+                                : "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                            }
+                          >
+                            {batch.source_type === "bloom" ? "Bloom" : "Petri"}
+                          </Badge>
+                        </div>
                         <CardDescription className="text-xs">
                           {formatDate(batch.created_at)} · {batch.trace_count}{" "}
                           trace{batch.trace_count !== 1 ? "s" : ""}
@@ -86,7 +108,9 @@ export default function Page() {
                         {batch.models.length > 0 && (
                           <div className="flex flex-wrap gap-1 pt-1">
                             {batch.models.map((model) => (
-                              <Badge key={model}>{model}</Badge>
+                              <Badge key={model} variant="outline">
+                                {model}
+                              </Badge>
                             ))}
                           </div>
                         )}

@@ -16,7 +16,7 @@ export async function GET(
     const { id: batchId } = await params;
 
     const { data: batch } = await supabase
-      .from("batches")
+      .from("petri_batches")
       .select("id")
       .eq("id", batchId)
       .maybeSingle();

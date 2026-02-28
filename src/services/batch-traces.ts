@@ -40,7 +40,7 @@ async function loadTraces(
     .select(
       "id, model, scenario_id, scenario_summary, total_time, working_time, model_usage",
     )
-    .eq("batch_id", batchId)
+    .eq("petri_batch_id", batchId)
     .order("created_at", { ascending: true });
   if (error) throw error;
   return data ?? [];
@@ -222,7 +222,10 @@ function buildTraceRows(
       total_time: t.total_time ?? null,
       working_time: t.working_time ?? null,
       citation_count: traceCitationCounts.get(t.id) ?? 0,
-      model_usage: t.model_usage as Record<string, import("@/types/shared").ModelUsageEntry> | null,
+      model_usage: t.model_usage as Record<
+        string,
+        import("@/types/shared").ModelUsageEntry
+      > | null,
     };
   });
   return { rows, dimensions };
@@ -253,7 +256,10 @@ export async function getBatchTraces(
       total_time: t.total_time ?? null,
       working_time: t.working_time ?? null,
       citation_count: 0,
-      model_usage: t.model_usage as Record<string, import("@/types/shared").ModelUsageEntry> | null,
+      model_usage: t.model_usage as Record<
+        string,
+        import("@/types/shared").ModelUsageEntry
+      > | null,
     }));
     return { traces: rows, dimensions: [] };
   }

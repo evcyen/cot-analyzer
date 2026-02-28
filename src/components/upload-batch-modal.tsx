@@ -13,18 +13,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Field, FieldLabel, FieldContent } from "@/components/ui/field";
-import { UploadIcon, XIcon, FileIcon } from "lucide-react";
+import { UploadIcon, XIcon, FileIcon, FolderIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface UploadBatchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+type SourceType = "petri" | "bloom";
+
 export function UploadBatchModal({
   open,
   onOpenChange,
 }: UploadBatchModalProps) {
+  const [sourceType, setSourceType] = React.useState<SourceType>("petri");
   const [files, setFiles] = React.useState<File[]>([]);
   const [batchName, setBatchName] = React.useState("");
   const [status, setStatus] = React.useState<
@@ -34,6 +44,7 @@ export function UploadBatchModal({
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const reset = React.useCallback(() => {
+    setSourceType("petri");
     setFiles([]);
     setBatchName("");
     setStatus("idle");
@@ -73,6 +84,7 @@ export function UploadBatchModal({
 
     const formData = new FormData();
     formData.set("name", name);
+    formData.set("sourceType", sourceType);
     files.forEach((f) => formData.append("files", f));
 
     try {
@@ -103,12 +115,36 @@ export function UploadBatchModal({
         <DialogHeader>
           <DialogTitle>Upload batch</DialogTitle>
           <DialogDescription>
-            Add Petri eval files. You can select multiple files; they will be
-            uploaded as one batch.
+            {sourceType === "petri"
+              ? "Add Petri eval files. You can select multiple files; they will be uploaded as one batch."
+              : "Select all files from a Bloom results directory (including _index.json, understanding.json, ideation.json, etc.)"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
+          <Field>
+            <FieldLabel htmlFor="source-type">Source Type</FieldLabel>
+            <FieldContent>
+              <Select
+                value={sourceType}
+                onValueChange={(value) => {
+                  setSourceType(value as SourceType);
+                  setFiles([]);
+                  if (inputRef.current) inputRef.current.value = "";
+                }}
+                disabled={status === "submitting"}
+              >
+                <SelectTrigger id="source-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="petri">Petri</SelectItem>
+                  <SelectItem value="bloom">Bloom</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldContent>
+          </Field>
+
           <Field>
             <FieldLabel htmlFor="batch-name">Batch name</FieldLabel>
             <FieldContent>
@@ -140,8 +176,14 @@ export function UploadBatchModal({
                 onClick={() => inputRef.current?.click()}
                 disabled={status === "submitting"}
               >
-                <UploadIcon className="size-4" />
-                Add files
+                {sourceType === "bloom" ? (
+                  <FolderIcon className="size-4" />
+                ) : (
+                  <UploadIcon className="size-4" />
+                )}
+                {sourceType === "bloom"
+                  ? "Select directory files"
+                  : "Add files"}
               </Button>
 
               {files.length > 0 && (
@@ -176,9 +218,15 @@ export function UploadBatchModal({
                 </ScrollArea>
               )}
               {files.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  No files added yet.
-                </p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>No files added yet.</p>
+                  {sourceType === "bloom" && (
+                    <p className="text-xs italic">
+                      Tip: Navigate to your Bloom results directory and select
+                      all JSON files (Cmd+A on Mac, Ctrl+A on Windows)
+                    </p>
+                  )}
+                </div>
               )}
             </FieldContent>
           </Field>

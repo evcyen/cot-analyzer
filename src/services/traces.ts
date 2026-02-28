@@ -10,7 +10,8 @@ export async function createTrace(
   const { data, error } = await supabase
     .from("traces")
     .insert({
-      batch_id: batchId,
+      petri_batch_id: batchId,
+      source_type: "petri",
       model: sample.trace.model,
       scenario_id: scenarioId,
       scenario_summary: sample.trace.scenario_summary,

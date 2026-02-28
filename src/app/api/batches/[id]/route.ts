@@ -13,10 +13,8 @@ export async function GET(
   try {
     const { id } = await params;
     const { data, error } = await supabase
-      .from("batches")
-      .select(
-        "id, name, created_at, ingest_source, started_at, completed_at, model_usage",
-      )
+      .from("petri_batches")
+      .select("id, name, created_at, started_at, completed_at, model_usage")
       .eq("id", id)
       .maybeSingle();
 

@@ -1,66 +1,114 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-
-export interface BatchListItem {
-  id: string;
-  name: string;
-  metadata: Record<string, unknown> | null;
-  created_at: string;
-  trace_count: number;
-  models: string[];
-}
+import type { BatchListItem } from "@/types/batches";
 
 /**
  * GET /api/batches
- * Returns all batches with name, metadata, trace count, and distinct models.
+ * Returns all batches (Petri + Bloom) with name, trace count, and distinct models.
  */
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from("batches")
+    // Fetch Petri batches
+    const { data: petriData, error: petriError } = await supabase
+      .from("petri_batches")
       .select(
         `
         id,
         name,
-        metadata,
         created_at,
-        traces ( id, model )
+        traces!traces_petri_batch_id_fkey ( id, model )
       `,
       )
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("[GET /api/batches]", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (petriError) {
+      console.error("[GET /api/batches] Petri error:", petriError);
+      return NextResponse.json(
+        { error: petriError.message },
+        { status: 500 },
+      );
     }
 
-    type Row = {
+    // Fetch Bloom batches
+    const { data: bloomData, error: bloomError } = await supabase
+      .from("bloom_batches")
+      .select(
+        `
+        id,
+        name,
+        created_at,
+        target_model,
+        transcript_count
+      `,
+      )
+      .order("created_at", { ascending: false });
+
+    if (bloomError) {
+      console.error("[GET /api/batches] Bloom error:", bloomError);
+      return NextResponse.json(
+        { error: bloomError.message },
+        { status: 500 },
+      );
+    }
+
+    // Map Petri batches
+    type PetriRow = {
       id: string;
       name: string;
-      metadata: Record<string, unknown> | null;
       created_at: string;
       traces?: Array<{ id: string; model?: string | null }>;
     };
-    const batches: BatchListItem[] = ((data ?? []) as Row[]).map((row) => {
-      const traces = Array.isArray(row.traces) ? row.traces : [];
-      const models = [
-        ...new Set(
-          traces
-            .map((t) => t.model)
-            .filter((m): m is string => typeof m === "string" && m.length > 0),
-        ),
-      ].sort();
-      return {
-        id: row.id,
-        name: row.name,
-        metadata: row.metadata as Record<string, unknown> | null,
-        created_at: row.created_at,
-        trace_count: traces.length,
-        models,
-      };
-    });
+    const petriBatches: BatchListItem[] = ((petriData ?? []) as PetriRow[]).map(
+      (row) => {
+        const traces = Array.isArray(row.traces) ? row.traces : [];
+        const models = [
+          ...new Set(
+            traces
+              .map((t) => t.model)
+              .filter(
+                (m): m is string => typeof m === "string" && m.length > 0,
+              ),
+          ),
+        ].sort();
+        return {
+          id: row.id,
+          name: row.name,
+          created_at: row.created_at,
+          trace_count: traces.length,
+          models,
+          source_type: "petri" as const,
+        };
+      },
+    );
 
-    return NextResponse.json(batches);
+    // Map Bloom batches
+    type BloomRow = {
+      id: string;
+      name: string;
+      created_at: string;
+      target_model: string;
+      transcript_count: number | null;
+    };
+    const bloomBatches: BatchListItem[] = ((bloomData ?? []) as BloomRow[]).map(
+      (row) => {
+        return {
+          id: row.id,
+          name: row.name,
+          created_at: row.created_at,
+          trace_count: row.transcript_count ?? 0,
+          models: [row.target_model],
+          source_type: "bloom" as const,
+        };
+      },
+    );
+
+    // Combine and sort by created_at descending
+    const allBatches = [...petriBatches, ...bloomBatches].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+
+    return NextResponse.json(allBatches);
   } catch (err) {
     console.error("[GET /api/batches]", err);
     return NextResponse.json(

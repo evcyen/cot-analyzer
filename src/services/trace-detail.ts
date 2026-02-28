@@ -64,7 +64,7 @@ export async function getTraceDetail(
       "id, model, scenario_summary, raw_input, messages, model_usage, total_time, working_time, started_at, completed_at",
     )
     .eq("id", traceId)
-    .eq("batch_id", batchId)
+    .eq("petri_batch_id", batchId)
     .maybeSingle();
 
   if (traceErr) throw traceErr;

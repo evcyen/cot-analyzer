@@ -23,7 +23,7 @@ export function useBatchDetail(batchId: string | null): {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/batches/${batchId}`);
+      const res = await fetch(`/api/petri/${batchId}`);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Batch not found");
       setBatch(data as BatchDetail);

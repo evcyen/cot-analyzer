@@ -13,7 +13,7 @@ export interface TraceRecord {
 
 export interface AnalysisRecord {
   id: string;
-  trace_id: string;
+  petri_trace_id: string;
 }
 
 export interface ScoreRecord {
@@ -36,7 +36,7 @@ async function loadTraces(
   batchId: string,
 ): Promise<TraceRecord[]> {
   const { data, error } = await supabase
-    .from("traces")
+    .from("petri_traces")
     .select(
       "id, model, scenario_id, scenario_summary, total_time, working_time, model_usage",
     )
@@ -53,8 +53,8 @@ async function loadAnalyses(
   if (traceIds.length === 0) return [];
   const { data, error } = await supabase
     .from("analyses")
-    .select("id, trace_id")
-    .in("trace_id", traceIds);
+    .select("id, petri_trace_id")
+    .in("petri_trace_id", traceIds);
   if (error) throw error;
   return data ?? [];
 }
@@ -184,7 +184,9 @@ function buildTraceRows(
   >,
   citationCountsByAnalysis: Map<string, number>,
 ): { rows: TraceRow[]; dimensions: DimensionInfo[] } {
-  const analysisIdToTraceId = new Map(analyses.map((a) => [a.id, a.trace_id]));
+  const analysisIdToTraceId = new Map(
+    analyses.map((a) => [a.id, a.petri_trace_id]),
+  );
   const traceScores = new Map<string, Map<string, number>>();
   const traceCitationCounts = new Map<string, number>();
 
@@ -192,7 +194,7 @@ function buildTraceRows(
   for (const analysis of analyses) {
     const citationCount = citationCountsByAnalysis.get(analysis.id) ?? 0;
     if (citationCount > 0) {
-      traceCitationCounts.set(analysis.trace_id, citationCount);
+      traceCitationCounts.set(analysis.petri_trace_id, citationCount);
     }
   }
 

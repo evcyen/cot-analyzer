@@ -3,8 +3,8 @@ import { supabase } from "@/lib/supabase";
 import type { BatchDetail } from "@/types/batches";
 
 /**
- * GET /api/batches/[id]
- * Returns batch metadata including eval-level stats when present.
+ * GET /api/petri/[id]
+ * Returns Petri batch metadata including eval-level stats when present.
  */
 export async function GET(
   _request: Request,
@@ -19,7 +19,7 @@ export async function GET(
       .maybeSingle();
 
     if (error) {
-      console.error("[GET /api/batches/[id]]", error);
+      console.error("[GET /api/petri/[id]]", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     if (!data) {
@@ -27,7 +27,7 @@ export async function GET(
     }
     return NextResponse.json(data as BatchDetail);
   } catch (err) {
-    console.error("[GET /api/batches/[id]]", err);
+    console.error("[GET /api/petri/[id]]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 },

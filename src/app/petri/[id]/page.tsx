@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BatchBreadcrumb } from "./components/BatchBreadcrumb";
+import { BatchBreadcrumb } from "@/components/BatchBreadcrumb";
 import { BatchStatsTab } from "./components/BatchStatsTab";
 import { BatchTracesTable } from "./components/BatchTracesTable";
 import {

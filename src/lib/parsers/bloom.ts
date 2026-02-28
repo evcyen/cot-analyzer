@@ -54,6 +54,7 @@ export function parseBloomDirectory(
   // Parse understanding
   const understanding = {
     understanding_text: understandingData.understanding,
+    understanding_reasoning: understandingData.understanding_reasoning,
     scientific_motivation: understandingData.scientific_motivation,
     model: understandingData.model,
   };
@@ -64,9 +65,8 @@ export function parseBloomDirectory(
     const dimensionMatch = variation.description.match(
       /<dimension>(.*?)<\/dimension>/,
     );
-    const dimensions = dimensionMatch
-      ? [dimensionMatch[1]]
-      : ideationData.variation_dimensions;
+    // Only use dimension if explicitly found in the description, not the global fallback
+    const dimensions = dimensionMatch ? [dimensionMatch[1]] : [];
 
     return {
       scenario_number: idx + 1,

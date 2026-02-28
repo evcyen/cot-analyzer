@@ -8,10 +8,9 @@ export async function createTrace(
   scenarioId: number,
 ): Promise<string> {
   const { data, error } = await supabase
-    .from("traces")
+    .from("petri_traces")
     .insert({
       petri_batch_id: batchId,
-      source_type: "petri",
       model: sample.trace.model,
       scenario_id: scenarioId,
       scenario_summary: sample.trace.scenario_summary,

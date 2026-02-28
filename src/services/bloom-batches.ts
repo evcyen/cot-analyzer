@@ -42,6 +42,7 @@ export async function createBloomBatch(
     .insert({
       batch_id: batchId,
       understanding: parsed.understanding.understanding_text,
+      understanding_reasoning: parsed.understanding.understanding_reasoning,
       scientific_motivation: parsed.understanding.scientific_motivation,
       model: parsed.understanding.model,
     });
@@ -69,15 +70,22 @@ export async function createBloomBatch(
 
   let traceCount = 0;
   for (const trace of parsed.traces) {
-    const { error: traceError } = await supabase.from("traces").insert({
-      bloom_batch_id: batchId,
-      source_type: "bloom",
-      model: trace.target_model,
-      scenario_id: trace.scenario_number,
-      variation_number: trace.variation_number,
-      repetition_number: trace.repetition_number,
-      messages: trace.messages,
-    });
+    const { error: traceError } = await supabase
+      .from("bloom_transcripts")
+      .insert({
+        batch_id: batchId,
+        model: trace.target_model,
+        scenario_id: trace.scenario_number,
+        variation_number: trace.variation_number,
+        repetition_number: trace.repetition_number,
+        messages: trace.messages,
+        transcript_id: trace.transcript_id,
+        summary: trace.summary,
+        behavior_presence: trace.scores.behavior_presence ?? null,
+        unrealism: trace.scores.unrealism ?? null,
+        evaluation_awareness: trace.scores.evaluation_awareness ?? null,
+        evaluation_invalidity: trace.scores.evaluation_invalidity ?? null,
+      });
 
     if (traceError) throw traceError;
     traceCount++;

@@ -29,7 +29,7 @@ export function useBatchTraces(batchId: string | null): {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/batches/${batchId}/traces`);
+      const res = await fetch(`/api/petri/${batchId}/traces`);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Failed to load traces");
       const dims = data.dimensions ?? [];

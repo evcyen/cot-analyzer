@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getMessageParts } from "@/lib/trace-message-parts";
 import type { TraceMessage } from "@/types/trace-detail";
-import { BatchBreadcrumb } from "../../components/BatchBreadcrumb";
+import { BatchBreadcrumb } from "@/components/BatchBreadcrumb";
 import {
   TraceDetailProvider,
   useTraceDetailContext,

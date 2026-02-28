@@ -8,7 +8,6 @@ import type { BatchListItem } from "@/types/batches";
  */
 export async function GET() {
   try {
-    // Fetch Petri batches
     const { data: petriData, error: petriError } = await supabase
       .from("petri_batches")
       .select(
@@ -16,20 +15,16 @@ export async function GET() {
         id,
         name,
         created_at,
-        traces!traces_petri_batch_id_fkey ( id, model )
+        petri_traces!petri_traces_batch_id_fkey ( id, model )
       `,
       )
       .order("created_at", { ascending: false });
 
     if (petriError) {
       console.error("[GET /api/batches] Petri error:", petriError);
-      return NextResponse.json(
-        { error: petriError.message },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: petriError.message }, { status: 500 });
     }
 
-    // Fetch Bloom batches
     const { data: bloomData, error: bloomError } = await supabase
       .from("bloom_batches")
       .select(
@@ -45,22 +40,18 @@ export async function GET() {
 
     if (bloomError) {
       console.error("[GET /api/batches] Bloom error:", bloomError);
-      return NextResponse.json(
-        { error: bloomError.message },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: bloomError.message }, { status: 500 });
     }
 
-    // Map Petri batches
     type PetriRow = {
       id: string;
       name: string;
       created_at: string;
-      traces?: Array<{ id: string; model?: string | null }>;
+      petri_traces?: Array<{ id: string; model?: string | null }>;
     };
     const petriBatches: BatchListItem[] = ((petriData ?? []) as PetriRow[]).map(
       (row) => {
-        const traces = Array.isArray(row.traces) ? row.traces : [];
+        const traces = Array.isArray(row.petri_traces) ? row.petri_traces : [];
         const models = [
           ...new Set(
             traces
@@ -81,7 +72,6 @@ export async function GET() {
       },
     );
 
-    // Map Bloom batches
     type BloomRow = {
       id: string;
       name: string;
@@ -102,7 +92,6 @@ export async function GET() {
       },
     );
 
-    // Combine and sort by created_at descending
     const allBatches = [...petriBatches, ...bloomBatches].sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),

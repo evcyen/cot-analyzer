@@ -24,7 +24,7 @@ interface TraceRow {
 
 interface AnalysisRow {
   id: string;
-  trace_id: string;
+  petri_trace_id: string;
   overall_justification: string;
   judge_model: string | null;
 }
@@ -59,7 +59,7 @@ export async function getTraceDetail(
   traceId: string,
 ): Promise<TraceDetail | null> {
   const { data: traceRow, error: traceErr } = await supabase
-    .from("traces")
+    .from("petri_traces")
     .select(
       "id, model, scenario_summary, raw_input, messages, model_usage, total_time, working_time, started_at, completed_at",
     )
@@ -95,8 +95,8 @@ export async function getTraceDetail(
 
   const { data: analysisRows, error: analysisErr } = await supabase
     .from("analyses")
-    .select("id, trace_id, overall_justification, judge_model")
-    .eq("trace_id", traceId)
+    .select("id, petri_trace_id, overall_justification, judge_model")
+    .eq("petri_trace_id", traceId)
     .limit(1);
 
   if (analysisErr) throw analysisErr;

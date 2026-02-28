@@ -74,7 +74,13 @@ export default function Page() {
           <ul className="space-y-3">
             {batches.map((batch) => (
               <li key={batch.id}>
-                <Link href={`/batches/${batch.id}`}>
+                <Link
+                  href={
+                    batch.source_type === "bloom"
+                      ? `/bloom/${batch.id}`
+                      : `/petri/${batch.id}`
+                  }
+                >
                   <Card
                     className={`transition-colors hover:bg-muted/50 ${
                       batch.source_type === "bloom"

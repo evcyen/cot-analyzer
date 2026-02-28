@@ -9,7 +9,7 @@ export async function createAnalysis(
   const { data, error } = await supabase
     .from("analyses")
     .insert({
-      trace_id: traceId,
+      petri_trace_id: traceId,
       overall_justification: overallJustification,
       judge_model: judgeModel,
     })

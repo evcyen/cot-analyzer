@@ -5,8 +5,8 @@ import { getBatchTraces } from "@/services/batch-traces";
 export type { TraceRow } from "@/types/batches";
 
 /**
- * GET /api/batches/[id]/traces
- * Returns traces for the batch with scores keyed by dimension name.
+ * GET /api/petri/[id]/traces
+ * Returns traces for the Petri batch with scores keyed by dimension name.
  */
 export async function GET(
   _request: Request,
@@ -27,7 +27,7 @@ export async function GET(
     const { traces, dimensions } = await getBatchTraces(supabase, batchId);
     return NextResponse.json({ traces, dimensions });
   } catch (err) {
-    console.error("[GET /api/batches/[id]/traces]", err);
+    console.error("[GET /api/petri/[id]/traces]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 },

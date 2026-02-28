@@ -121,7 +121,7 @@ function actionsColumn(batchId: string | null): ColumnDef<TraceRow> {
     cell: ({ row }) =>
       batchId ? (
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/batches/${batchId}/traces/${row.original.trace_id}`}>
+          <Link href={`/petri/${batchId}/traces/${row.original.trace_id}`}>
             View
           </Link>
         </Button>

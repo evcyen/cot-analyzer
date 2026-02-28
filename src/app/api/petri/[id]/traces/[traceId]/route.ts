@@ -3,8 +3,8 @@ import { supabase } from "@/lib/supabase";
 import { getTraceDetail } from "@/services/trace-detail";
 
 /**
- * GET /api/batches/[id]/traces/[traceId]
- * Returns one trace with messages, analysis (overall justification, scores with dimension names and justifications), and citations.
+ * GET /api/petri/[id]/traces/[traceId]
+ * Returns one Petri trace with messages, analysis (overall justification, scores with dimension names and justifications), and citations.
  */
 export async function GET(
   _request: Request,
@@ -29,7 +29,7 @@ export async function GET(
 
     return NextResponse.json(detail);
   } catch (err) {
-    console.error("[GET /api/batches/[id]/traces/[traceId]]", err);
+    console.error("[GET /api/petri/[id]/traces/[traceId]]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 },

@@ -118,6 +118,7 @@ export interface ParsedBloomBatch {
   };
   understanding: {
     understanding_text: string;
+    understanding_reasoning: string;
     scientific_motivation: string;
     model: string;
   };
@@ -162,4 +163,55 @@ export interface BloomTranscriptEvent {
       source?: string;
     };
   };
+}
+
+export interface BloomBatchDetail {
+  batch: {
+    id: string;
+    name: string;
+    behavior_name: string;
+    target_model: string;
+    auditor_model: string;
+    modality: string;
+    transcript_count: number | null;
+    generated_at: string | null;
+    elicitation_rate: number | null;
+    avg_behavior_presence: number | null;
+    min_behavior_presence: number | null;
+    max_behavior_presence: number | null;
+    metajudge_response: string | null;
+    metajudge_justification: string | null;
+    diversity_score: number | null;
+    metajudge_model: string | null;
+    variation_dimensions: string[] | null;
+    created_at: string;
+  };
+  understanding: {
+    id: string;
+    understanding: string;
+    understanding_reasoning: string | null;
+    scientific_motivation: string | null;
+    model: string;
+  } | null;
+  scenarios: Array<{
+    id: string;
+    scenario_number: number;
+    variation_type: string | null;
+    variation_number: number;
+    description: string;
+    tools: unknown;
+    created_at: string;
+  }>;
+  transcripts: Array<{
+    id: string;
+    transcript_id: string | null;
+    summary: string | null;
+    behavior_presence: number | null;
+    unrealism: number | null;
+    evaluation_awareness: number | null;
+    evaluation_invalidity: number | null;
+    messages: unknown;
+    variation_number: number | null;
+    repetition_number: number | null;
+  }>;
 }

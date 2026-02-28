@@ -26,7 +26,7 @@ export function useTraceDetail(
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/batches/${batchId}/traces/${traceId}`);
+      const res = await fetch(`/api/petri/${batchId}/traces/${traceId}`);
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error ?? "Trace not found");
       setData(json as TraceDetail);

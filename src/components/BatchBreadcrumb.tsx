@@ -35,7 +35,7 @@ export function BatchBreadcrumb({
         <BreadcrumbItem>
           {showTrace ? (
             <BreadcrumbLink asChild>
-              <Link href={`/batches/${batchId}`}>{batchName}</Link>
+              <Link href={`/petri/${batchId}`}>{batchName}</Link>
             </BreadcrumbLink>
           ) : (
             <BreadcrumbPage>{batchName}</BreadcrumbPage>

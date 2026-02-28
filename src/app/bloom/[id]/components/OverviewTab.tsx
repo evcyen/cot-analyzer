@@ -206,102 +206,121 @@ export function OverviewTab({ data, batchId }: OverviewTabProps) {
               </span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 min-h-0 overflow-auto relative">
-            <Table>
-              <TableHeader className="sticky top-0 bg-background z-10">
-                <TableRow>
-                  <TableHead className="bg-background">ID</TableHead>
-                  <TableHead className="bg-background">Summary</TableHead>
-                  {scoreDimensions.map((dimension) => {
-                    const isSorted = sortColumn === dimension;
-                    const SortIcon = isSorted
-                      ? sortDirection === "asc"
-                        ? ArrowUp
-                        : ArrowDown
-                      : ArrowUpDown;
-                    return (
-                      <TableHead
-                        key={dimension}
-                        className="text-right bg-background"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 -my-2 hover:bg-muted"
-                          onClick={() => handleSort(dimension)}
-                        >
-                          {formatScoreDimension(dimension)}
-                          <SortIcon
-                            className={`ml-2 h-3 w-3 ${isSorted ? "text-primary" : ""}`}
-                          />
-                        </Button>
-                      </TableHead>
-                    );
-                  })}
-                  <TableHead
-                    className="sticky right-0 bg-background"
-                    style={{
-                      boxShadow: "inset 4px 0 3px -4px rgba(0,0,0,0.15)",
-                    }}
-                  ></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedTranscripts.length === 0 ? (
+          <CardContent className="flex-1 min-h-0 relative">
+            <div className="relative w-full h-full rounded-md border overflow-auto">
+              <Table>
+                <TableHeader
+                  className="sticky top-0 bg-background z-30"
+                  style={{
+                    boxShadow: "0 1px 3px -1px rgba(0,0,0,0.15)",
+                  }}
+                >
                   <TableRow>
-                    <TableCell
-                      colSpan={scoreDimensions.length + 3}
-                      className="text-center text-muted-foreground"
+                    <TableHead
+                      className="sticky left-0 bg-background"
+                      style={{
+                        boxShadow: "inset -4px 0 3px -4px rgba(0,0,0,0.15)",
+                      }}
                     >
-                      No transcripts found
-                    </TableCell>
+                      ID
+                    </TableHead>
+                    <TableHead className="bg-background">Summary</TableHead>
+                    {scoreDimensions.map((dimension) => {
+                      const isSorted = sortColumn === dimension;
+                      const SortIcon = isSorted
+                        ? sortDirection === "asc"
+                          ? ArrowUp
+                          : ArrowDown
+                        : ArrowUpDown;
+                      return (
+                        <TableHead
+                          key={dimension}
+                          className="text-right bg-background"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 -my-2 hover:bg-muted"
+                            onClick={() => handleSort(dimension)}
+                          >
+                            {formatScoreDimension(dimension)}
+                            <SortIcon
+                              className={`ml-2 h-3 w-3 ${isSorted ? "text-primary" : ""}`}
+                            />
+                          </Button>
+                        </TableHead>
+                      );
+                    })}
+                    <TableHead
+                      className="sticky right-0 bg-background z-20"
+                      style={{
+                        boxShadow: "inset 4px 0 3px -4px rgba(0,0,0,0.15)",
+                      }}
+                    ></TableHead>
                   </TableRow>
-                ) : (
-                  sortedTranscripts.map((transcript) => (
-                    <TableRow key={transcript.id}>
-                      <TableCell className="font-mono text-xs">
-                        <span className="font-mono text-xs truncate">
-                          {formatTranscriptDisplayId(
-                            transcript.variation_number,
-                            transcript.repetition_number,
-                          )}
-                        </span>
-                      </TableCell>
-                      <TableCell className="max-w-md truncate">
-                        {transcript.summary ?? "—"}
-                      </TableCell>
-                      {scoreDimensions.map((dimension) => {
-                        const score = transcript.scores?.[dimension];
-                        const colorStyle = getBloomScoreColorStyle(score);
-                        return (
-                          <TableCell
-                            key={dimension}
-                            className="text-right tabular-nums"
-                            style={colorStyle}
-                          >
-                            {formatScore(score)}
-                          </TableCell>
-                        );
-                      })}
+                </TableHeader>
+                <TableBody>
+                  {sortedTranscripts.length === 0 ? (
+                    <TableRow>
                       <TableCell
-                        className="sticky right-0 bg-background"
-                        style={{
-                          boxShadow: "inset 4px 0 3px -4px rgba(0,0,0,0.15)",
-                        }}
+                        colSpan={scoreDimensions.length + 3}
+                        className="text-center text-muted-foreground"
                       >
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link
-                            href={`/bloom/${batchId}/traces/${transcript.id}`}
-                          >
-                            View
-                          </Link>
-                        </Button>
+                        No transcripts found
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ) : (
+                    sortedTranscripts.map((transcript) => (
+                      <TableRow key={transcript.id}>
+                        <TableCell
+                          className="font-mono text-xs sticky left-0 bg-background z-10"
+                          style={{
+                            boxShadow: "inset -4px 0 3px -4px rgba(0,0,0,0.15)",
+                          }}
+                        >
+                          <span className="font-mono text-xs truncate">
+                            {formatTranscriptDisplayId(
+                              transcript.variation_number,
+                              transcript.repetition_number,
+                            )}
+                          </span>
+                        </TableCell>
+                        <TableCell className="max-w-md truncate">
+                          {transcript.summary ?? "—"}
+                        </TableCell>
+                        {scoreDimensions.map((dimension) => {
+                          const score = transcript.scores?.[dimension];
+                          const colorStyle = getBloomScoreColorStyle(score);
+                          return (
+                            <TableCell
+                              key={dimension}
+                              className="text-right tabular-nums"
+                              style={colorStyle}
+                            >
+                              {formatScore(score)}
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell
+                          className="sticky right-0 bg-background z-10"
+                          style={{
+                            boxShadow: "inset 4px 0 3px -4px rgba(0,0,0,0.15)",
+                          }}
+                        >
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link
+                              href={`/bloom/${batchId}/traces/${transcript.id}`}
+                            >
+                              View
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

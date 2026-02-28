@@ -43,18 +43,6 @@ export function BloomAnalysisPanel({
       </h2>
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-6 min-w-0 wrap-break-word">
-          {/* Target System Prompt Section */}
-          {targetSystemPrompt && (
-            <div>
-              <h4 className="text-sm font-semibold mb-2">
-                Target System Prompt
-              </h4>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {targetSystemPrompt}
-              </p>
-            </div>
-          )}
-
           {/* Scores Section */}
           {scores && Object.keys(scores).length > 0 && (
             <div>
@@ -80,6 +68,18 @@ export function BloomAnalysisPanel({
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Target System Prompt Section */}
+          {targetSystemPrompt && (
+            <div>
+              <h4 className="text-sm font-semibold mb-2">
+                Target System Prompt
+              </h4>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {targetSystemPrompt}
+              </p>
             </div>
           )}
 

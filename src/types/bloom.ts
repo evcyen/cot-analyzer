@@ -130,6 +130,7 @@ export interface ParsedBloomBatch {
     scenario_number: number;
     description: string;
     variation_dimensions: string[];
+    tools: unknown[];
   }>;
   traces: Array<{
     transcript_id: string;
@@ -286,4 +287,14 @@ export interface BloomTranscriptDetail {
   highlights: (BloomHighlight & {
     parts: BloomCitationPart[];
   })[];
+}
+
+export interface ParsedTool {
+  name: string;
+  description: string;
+  parameters: Array<{
+    name: string;
+    type: string;
+    description: string;
+  }>;
 }

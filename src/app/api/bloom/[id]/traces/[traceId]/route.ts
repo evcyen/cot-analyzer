@@ -87,6 +87,7 @@ export async function GET(
       scores: transcriptData.scores,
       messages: transcriptData.messages,
       judge_justification: transcriptData.judge_justification,
+      target_system_prompt: transcriptData.target_system_prompt,
       created_at: transcriptData.created_at,
       batch: batchData,
       highlights: (highlightsData ?? []).map(

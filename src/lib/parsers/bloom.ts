@@ -183,6 +183,7 @@ export function parseBloomDirectory(
         "",
       ),
       variation_dimensions: dimensions,
+      tools: variation.tools || [],
     };
   });
 

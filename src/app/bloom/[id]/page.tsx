@@ -88,7 +88,7 @@ export default function BloomBatchPage() {
   return (
     <div className="h-screen flex flex-col p-6">
       <div className="mx-auto w-full flex-1 flex flex-col min-h-0">
-        <div className="mb-6 min-h-6 shrink-0">
+        <div className="mb-4 min-h-6 shrink-0">
           <BatchBreadcrumb
             batchId={batchId}
             batchName={data.batch.name}

@@ -121,7 +121,7 @@ export function BatchTracesTable() {
         </Select>
         <DimensionsPopover />
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

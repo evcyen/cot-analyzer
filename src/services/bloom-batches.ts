@@ -67,6 +67,7 @@ export async function createBloomBatch(
               ? scenario.variation_dimensions[0]
               : null,
           description: scenario.description,
+          tools: scenario.tools,
         })),
       );
 
